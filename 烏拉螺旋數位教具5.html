@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>質數分布教具：烏拉螺旋 vs 極坐標螺旋</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#020617;
+      --panel:#020617;
+      --accent:#38bdf8;
+      --accent-soft:#1d4ed8;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,#1e293b,#020617 55%);
+      font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif;
+      color:var(--text);
+    }
+    .page{
+      width:min(1280px,100vw - 24px);
+      margin:16px auto;
+      padding:16px;
+      background:linear-gradient(135deg,rgba(15,23,42,0.96),rgba(15,23,42,0.9));
+      border-radius:18px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.75);
+      border:1px solid rgba(148,163,184,0.15);
+    }
+    .page-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      margin-bottom:10px;
+      gap:8px;
+    }
+    .title{
+      font-size:20px;
+      font-weight:700;
+      letter-spacing:0.02em;
+    }
+    .subtitle{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .page-main{
+      margin-top:6px;
+      display:grid;
+      grid-template-columns:1.05fr 1.55fr;
+      gap:18px;
+    }
+    .panel{
+      background:var(--panel);
+      border-radius:14px;
+      padding:14px 16px 16px;
+      border:1px solid rgba(30,64,175,0.45);
+    }
+    .panel h2{
+      margin:0 0 6px;
+      font-size:15px;
+      font-weight:600;
+    }
+    p{
+      margin:0 0 6px;
+      font-size:13px;
+      line-height:1.6;
+    }
+    label{
+      display:block;
+      margin:8px 0 2px;
+      font-size:13px;
+    }
+    input[type="number"]{
+      width:190px;
+      max-width:100%;
+      padding:5px 8px;
+      border-radius:8px;
+      border:1px solid #1f2937;
+      background:#020617;
+      color:var(--text);
+      font-size:14px;
+      outline:none;
+    }
+    input[type="number"]:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(56,189,248,0.4);
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:2px;
+    }
+    .presets{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      font-size:12px;
+    }
+    .presets button{
+      padding:4px 10px;
+      border-radius:999px;
+      border:none;
+      background:var(--accent-soft);
+      color:#e5e7eb;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:500;
+    }
+    .presets button:hover{ filter:brightness(1.1); }
+    button.main{
+      margin-top:10px;
+      padding:7px 16px;
+      border-radius:999px;
+      border:none;
+      background:var(--accent);
+      color:#0b1120;
+      font-weight:700;
+      font-size:14px;
+      cursor:pointer;
+      width:auto;
+    }
+    button.main:disabled{
+      opacity:.55;
+      cursor:default;
+    }
+    .info{
+      margin-top:10px;
+      font-size:13px;
+      color:#cbd5f5;
+    }
+    .info small{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .mode-group{
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:rgba(15,23,42,0.9);
+      border:1px solid rgba(148,163,184,0.5);
+      font-size:13px;
+    }
+    .mode-group span{
+      display:block;
+      margin-bottom:4px;
+      color:#e5e7eb;
+      font-weight:500;
+    }
+    .mode-group label{
+      display:inline-flex;
+      align-items:center;
+      margin:0 10px 4px 0;
+      font-size:13px;
+      cursor:pointer;
+    }
+    .mode-group input{
+      margin-right:4px;
+    }
+    
+    /* ===== 畫布與 Logo 區域修改 ===== */
+    .canvas-shell{
+      background:#020617;
+      border-radius:14px;
+      padding:8px;
+      border:1px solid rgba(148,163,184,0.35);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position: relative;
+    }
+    
+    canvas{
+      display:block;
+      background:#ffffff;
+      border-radius:12px;
+      box-shadow:0 18px 40px rgba(0,0,0,0.65);
+    }
+
+    /* [修改] 公司 Logo 定位在右下角 */
+    .company-logo {
+      position: absolute;
+      right: 24px; /* 改為 right */
+      bottom: 24px;
+      height: 45px;
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* ===== 手機版調整 ===== */
+    @media (max-width: 768px){
+      body{
+        align-items:flex-start;
+      }
+      .page{
+        margin:8px auto;
+        padding:10px;
+        border-radius:14px;
+        width:calc(100vw - 16px);
+      }
+      .page-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:4px;
+        margin-bottom:6px;
+      }
+      .title{
+        font-size:18px;
+      }
+      .subtitle{
+        font-size:12px;
+      }
+      .page-main{
+        grid-template-columns:1fr;
+        gap:10px;
+      }
+      .panel{
+        padding:10px 12px 12px;
+      }
+      p{
+        font-size:12px;
+      }
+      label{
+        font-size:12px;
+      }
+      input[type="number"]{
+        width:100%;
+        font-size:13px;
+      }
+      .presets{
+        gap:4px;
+      }
+      .presets button{
+        padding:4px 8px;
+        font-size:11px;
+      }
+      button.main{
+        width:100%;
+        padding:8px 12px;
+        font-size:14px;
+      }
+      .canvas-shell{
+        padding:4px;
+      }
+      /* [修改] 手機版 Logo 定位 */
+      .company-logo {
+        height: 35px;
+        right: 15px; /* 改為 right */
+        bottom: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="title">質數分布教具</div>
+        <div class="subtitle">方形烏拉螺旋 vs 極坐標螺旋 (r = p, θ = p)</div>
+      </div>
+      <div class="subtitle">
+        建議先看烏拉螺旋的方形坐標，再切換到極坐標螺旋比較圖形規律。
+      </div>
+    </div>
+
+    <div class="page-main">
+      <div class="panel">
+        <h2>參數設定</h2>
+        <p>
+          本教具只取質數 p。<br>
+          「烏拉螺旋」：將 1～n 依方形螺旋填入格子，只用黑點標出質數位置。<br>
+          「極坐標螺旋」：在平面上以 r = p、θ = p（弧度）描黑點。
+        </p>
+
+        <label for="inputN">最大 n（100 ～ 5,000,000）：</label>
+        <input id="inputN" type="number" value="300000" min="100" max="5000000" step="100">
+        <div class="hint">n 越大，圖形越細緻；但運算與繪圖時間也會增加。</div>
+
+        <div class="presets">
+          快速選擇：
+          <button type="button" data-n="5000">5,000</button>
+          <button type="button" data-n="20000">20,000</button>
+          <button type="button" data-n="100000">100,000</button>
+          <button type="button" data-n="300000">300,000</button>
+          <button type="button" data-n="1000000">1,000,000</button>
+        </div>
+
+        <div class="mode-group">
+          <span>圖形模式：</span>
+          <label>
+            <input type="radio" name="mode" value="ulam" checked>
+            烏拉螺旋（方形坐標）
+          </label>
+          <label>
+            <input type="radio" name="mode" value="polar">
+            極坐標螺旋
+          </label>
+          <div class="hint" style="margin-top:4px;">
+            烏拉螺旋模式建議 n ≤ 500,000，比較不會太慢，黑點分布也較清楚。
+          </div>
+        </div>
+
+        <button id="btnDraw" class="main">重新繪製</button>
+
+        <div class="info" id="info">尚未繪製。</div>
+        <div class="info">
+          <small>教學建議：先固定 n，只切換模式比較兩種坐標；再改變 n 看螺旋、對角線與放射線的變化。</small>
+        </div>
+      </div>
+
+      <div class="canvas-shell">
+        <canvas id="canvas"></canvas>
+        <img src="company-logo.PNG" alt="LOGO" class="company-logo">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const inputN = document.getElementById("inputN");
+    const btnDraw = document.getElementById("btnDraw");
+    const info = document.getElementById("info");
+    const presetButtons = document.querySelectorAll(".presets button");
+    const modeRadios = document.querySelectorAll("input[name='mode']");
+
+    let logicalSize = 600;
+    let currentN = parseInt(inputN.value, 10) || 300000;
+    let currentMode = "ulam";
+
+    function resizeSquare() {
+      const isMobile = window.innerWidth <= 768;
+      let cssSize;
+      if (isMobile) {
+        cssSize = Math.min(window.innerWidth - 24, window.innerHeight * 0.6);
+      } else {
+        cssSize = Math.min(window.innerWidth * 0.6, window.innerHeight * 0.7);
+      }
+      const dpr = window.devicePixelRatio || 1;
+      logicalSize = cssSize;
+      canvas.style.width = cssSize + "px";
+      canvas.style.height = cssSize + "px";
+      canvas.width = cssSize * dpr;
+      canvas.height = cssSize * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener("resize", () => {
+      resizeSquare();
+      draw(currentN, currentMode);
+    });
+
+    resizeSquare();
+
+    function sieve(limit) {
+      const arr = new Uint8Array(limit + 1);
+      arr[0] = 1; arr[1] = 1;
+      const s = Math.floor(Math.sqrt(limit));
+      for (let i = 2; i <= s; i++) {
+        if (!arr[i]) {
+          for (let j = i * i; j <= limit; j += i) arr[j] = 1;
+        }
+      }
+      return arr;
+    }
+
+    function drawPolar(N, isComposite) {
+      const cx = logicalSize / 2;
+      const cy = logicalSize / 2;
+      const maxR = Math.min(cx, cy) - 4;
+      const scale = maxR / N;
+      const dot = 0.9;
+      ctx.fillStyle = "#000000";
+      for (let p = 2; p <= N; p++) {
+        if (isComposite[p]) continue;
+        const r = p * scale;
+        const theta = p;
+        const x = cx + r * Math.cos(theta);
+        const y = cy + r * Math.sin(theta);
+        ctx.fillRect(x, y, dot, dot);
+      }
+    }
+
+    function drawUlam(N, isComposite) {
+      let side = Math.ceil(Math.sqrt(N));
+      if (side % 2 === 0) side++;
+      const cell = logicalSize / side;
+      const dot = Math.max(cell * 0.45, 0.35);
+      ctx.fillStyle = "#000000";
+      const cx = Math.floor(side / 2);
+      const cy = Math.floor(side / 2);
+
+      function drawDot(ix, iy, num) {
+        if (num < 2 || num > N) return;
+        if (isComposite[num]) return;
+        const x = ix * cell;
+        const y = iy * cell;
+        const px = x + (cell - dot) / 2;
+        const py = y + (cell - dot) / 2;
+        ctx.fillRect(px, py, dot, dot);
+      }
+
+      let x = cx, y = cy, n = 1;
+      drawDot(x, y, n);
+      const dirs = [[1,0],[0,-1],[-1,0],[0,1]];
+      let stepLen = 1;
+      let dirIndex = 0;
+      while (n < N) {
+        for (let rep = 0; rep < 2 && n < N; rep++) {
+          const [dx, dy] = dirs[dirIndex % 4];
+          for (let s = 0; s < stepLen && n < N; s++) {
+            x += dx; y += dy; n++;
+            drawDot(x, y, n);
+          }
+          dirIndex++;
+        }
+        stepLen++;
+      }
+    }
+
+    function draw(N, mode) {
+      currentN = N;
+      currentMode = mode;
+      btnDraw.disabled = true;
+      info.textContent = `計算中…`;
+      
+      setTimeout(() => {
+        const t0 = performance.now();
+        const isComposite = sieve(N);
+        const t1 = performance.now();
+        ctx.clearRect(0, 0, logicalSize, logicalSize);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, logicalSize, logicalSize);
+        if (mode === "ulam") {
+          drawUlam(N, isComposite);
+        } else {
+          drawPolar(N, isComposite);
+        }
+        const t2 = performance.now();
+        let cnt = 0;
+        for (let i = 2; i <= N; i++) if (!isComposite[i]) cnt++;
+        const sieveMs = Math.round(t1 - t0);
+        const drawMs = Math.round(t2 - t1);
+        info.textContent = `完成：n = ${N.toLocaleString()}，質數 ${cnt.toLocaleString()} 個。篩法 ${sieveMs} ms，繪圖 ${drawMs} ms。`;
+        btnDraw.disabled = false;
+      }, 10);
+    }
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const n = parseInt(btn.dataset.n, 10);
+        inputN.value = n;
+        draw(n, currentMode);
+      });
+    });
+
+    modeRadios.forEach(r => {
+      r.addEventListener("change", () => {
+        if (r.checked) {
+          currentMode = r.value;
+          draw(currentN, currentMode);
+        }
+      });
+    });
+
+    btnDraw.addEventListener("click", () => {
+      let N = parseInt(inputN.value, 10);
+      if (isNaN(N)) N = 100000;
+      N = Math.max(100, Math.min(5000000, N));
+      inputN.value = N;
+      draw(N, currentMode);
+    });
+
+    draw(currentN, currentMode);
+  </script>
+</body>
+</html>
