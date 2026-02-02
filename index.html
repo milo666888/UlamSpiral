@@ -51,7 +51,7 @@
       color:var(--muted);
     }
 
-    /* ===== 電腦版佈局 (維持原樣) ===== */
+    /* ===== 電腦版佈局 (完全不動) ===== */
     .page-main{
       margin-top:6px;
       display:grid;
@@ -198,30 +198,30 @@
       z-index: 10;
     }
 
-    /* 手機版設定按鈕 - 預設隱藏 */
-    .mobile-menu-btn {
+    /* 手機專用底部控制列 - 電腦版隱藏 */
+    .mobile-footer {
       display: none;
     }
 
-    /* ===== 手機版專屬樣式 (Media Query) ===== */
+    /* ===== 手機版調整 (Media Query) ===== */
     @media (max-width: 768px){
-      body{ align-items: flex-start; }
+      body { align-items: flex-start; }
       .page {
         margin: 8px auto;
         padding: 10px;
         width: calc(100vw - 16px);
       }
       .page-header { flex-direction: column; align-items: flex-start; }
-      .page-main { grid-template-columns: 1fr; }
+      .page-main { grid-template-columns: 1fr; gap: 10px; }
 
-      /* 面板在手機版變為彈出式選單 */
+      /* 面板變為彈出式側邊選單 */
       .panel {
         position: fixed;
         top: 0;
-        left: -320px; /* 隱藏在左側 */
+        left: -320px; 
         width: 300px;
         height: 100vh;
-        z-index: 1000;
+        z-index: 2000;
         transition: left 0.3s ease;
         border-radius: 0 18px 18px 0;
         box-shadow: 10px 0 30px rgba(0,0,0,0.5);
@@ -229,7 +229,6 @@
       }
       .panel.open { left: 0; }
 
-      /* 遮罩層 */
       .overlay {
         display: none;
         position: fixed;
@@ -238,37 +237,52 @@
         width: 100vw;
         height: 100vh;
         background: rgba(0,0,0,0.6);
-        z-index: 999;
+        z-index: 1999;
       }
       .overlay.show { display: block; }
 
-      /* 手機版浮動齒輪按鈕 */
-      .mobile-menu-btn {
+      /* 手機版：隱藏畫布內部的 Logo (因為我們要放到右下角並列) */
+      .canvas-shell .company-logo { display: none; }
+
+      /* 手機版專屬底部按鈕區域 */
+      .mobile-footer {
         display: flex;
         position: fixed;
         bottom: 20px;
-        right: 20px; /* 改到右邊與 Logo 呼應，或左邊依你喜好 */
-        width: 56px;
-        height: 56px;
-        background: var(--accent);
-        border-radius: 50%;
-        box-shadow: 0 4px 15px rgba(56,189,248,0.5);
+        right: 20px;
+        gap: 12px;
+        align-items: center;
         z-index: 1001;
+      }
+
+      /* 手機版設定按鈕與 LOGO 大小一致 */
+      .mobile-menu-btn {
+        width: 40px;
+        height: 40px;
+        background: var(--accent);
+        border-radius: 8px; /* 方圓形，配合 LOGO 感 */
+        display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
         border: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       }
       .mobile-menu-btn svg {
         fill: #0b1120;
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
       }
-      .company-logo {
-        height: 35px;
-        right: 15px;
-        bottom: 15px;
+
+      .footer-logo {
+        height: 40px;
+        width: auto;
+        opacity: 0.9;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
       }
+
+      #mobileClose { display: block !important; }
     }
   </style>
 </head>
@@ -276,9 +290,12 @@
 
   <div class="overlay" id="overlay"></div>
 
-  <button class="mobile-menu-btn" id="menuToggle">
-    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-  </button>
+  <div class="mobile-footer">
+    <button class="mobile-menu-btn" id="menuToggle">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    </button>
+    <img src="company-logo.PNG" alt="LOGO" class="footer-logo">
+  </div>
 
   <div class="page">
     <div class="page-header">
@@ -340,7 +357,7 @@
 
       <div class="canvas-shell">
         <canvas id="canvas"></canvas>
-        <img src="company-logo.PNG" alt="LOGO" class="company-logo">
+        <img src="company-logo.png" alt="LOGO" class="company-logo">
       </div>
     </div>
   </div>
@@ -354,7 +371,7 @@
     const presetButtons = document.querySelectorAll(".presets button");
     const modeRadios = document.querySelectorAll("input[name='mode']");
     
-    // 手機選單控制
+    // 手機選單控制元件
     const panel = document.getElementById("panel");
     const overlay = document.getElementById("overlay");
     const menuToggle = document.getElementById("menuToggle");
@@ -363,7 +380,6 @@
     function openMenu() {
       panel.classList.add("open");
       overlay.classList.add("show");
-      if(window.innerWidth <= 768) mobileClose.style.display = "block";
     }
     function closeMenu() {
       panel.classList.remove("open");
@@ -397,7 +413,7 @@
 
     window.addEventListener("resize", () => {
       resizeSquare();
-      draw(currentN, currentMode);
+      draw(currentN, currentMode, false); // resize 時不收合選單
     });
 
     resizeSquare();
@@ -464,7 +480,10 @@
       }
     }
 
-    function draw(N, mode) {
+    /**
+     * @param {boolean} shouldClose - 是否在繪製後收合手機選單
+     */
+    function draw(N, mode, shouldClose = false) {
       currentN = N;
       currentMode = mode;
       btnDraw.disabled = true;
@@ -483,8 +502,8 @@
         info.textContent = `完成：n = ${N.toLocaleString()}，質數 ${cnt.toLocaleString()} 個。`;
         btnDraw.disabled = false;
         
-        // 手機版自動收合選單
-        if(window.innerWidth <= 768) closeMenu();
+        // 只有明確要求時 (例如按下「重新繪製」)，才在手機版收合選單
+        if(shouldClose && window.innerWidth <= 768) closeMenu();
       }, 10);
     }
 
@@ -492,7 +511,7 @@
       btn.addEventListener("click", () => {
         const n = parseInt(btn.dataset.n, 10);
         inputN.value = n;
-        draw(n, currentMode);
+        draw(n, currentMode, false); // 快速選擇時「不」收合選單
       });
     });
 
@@ -500,20 +519,20 @@
       r.addEventListener("change", () => {
         if (r.checked) {
           currentMode = r.value;
-          draw(currentN, currentMode);
+          draw(currentN, currentMode, false); // 切換模式時「不」收合選單
         }
       });
     });
 
     btnDraw.addEventListener("click", () => {
-      let N = parseInt(inputN.value, 10);
-      if (isNaN(N)) N = 100000;
+      let N = parseInt(inputN.value, 10) || 100000;
       N = Math.max(100, Math.min(5000000, N));
       inputN.value = N;
-      draw(N, currentMode);
+      draw(N, currentMode, true); // 只有點擊「重新繪製」才會收合選單
     });
 
-    draw(currentN, currentMode);
+    // 初始繪製
+    draw(currentN, currentMode, false);
   </script>
 </body>
 </html>
