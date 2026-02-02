@@ -51,7 +51,7 @@
       color:var(--muted);
     }
 
-    /* ===== 電腦版佈局 (完全不動) ===== */
+    /* ===== 電腦版佈局 ===== */
     .page-main{
       margin-top:6px;
       display:grid;
@@ -167,7 +167,6 @@
       margin-right:4px;
     }
     
-    /* ===== 畫布與 Logo (電腦版) ===== */
     .canvas-shell{
       background:#020617;
       border-radius:14px;
@@ -198,12 +197,11 @@
       z-index: 10;
     }
 
-    /* 手機專用底部控制列 - 電腦版隱藏 */
     .mobile-footer {
       display: none;
     }
 
-    /* ===== 手機版調整 (Media Query) ===== */
+    /* ===== 手機版調整 ===== */
     @media (max-width: 768px){
       body { align-items: flex-start; }
       .page {
@@ -214,7 +212,6 @@
       .page-header { flex-direction: column; align-items: flex-start; }
       .page-main { grid-template-columns: 1fr; gap: 10px; }
 
-      /* 面板變為彈出式側邊選單 */
       .panel {
         position: fixed;
         top: 0;
@@ -241,10 +238,8 @@
       }
       .overlay.show { display: block; }
 
-      /* 手機版：隱藏畫布內部的 Logo (因為我們要放到右下角並列) */
       .canvas-shell .company-logo { display: none; }
 
-      /* 手機版專屬底部按鈕區域 */
       .mobile-footer {
         display: flex;
         position: fixed;
@@ -255,12 +250,11 @@
         z-index: 1001;
       }
 
-      /* 手機版設定按鈕與 LOGO 大小一致 */
       .mobile-menu-btn {
         width: 40px;
         height: 40px;
         background: var(--accent);
-        border-radius: 8px; /* 方圓形 */
+        border-radius: 8px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -371,7 +365,6 @@
     const presetButtons = document.querySelectorAll(".presets button");
     const modeRadios = document.querySelectorAll("input[name='mode']");
     
-    // 手機選單控制元件
     const panel = document.getElementById("panel");
     const overlay = document.getElementById("overlay");
     const menuToggle = document.getElementById("menuToggle");
@@ -413,7 +406,7 @@
 
     window.addEventListener("resize", () => {
       resizeSquare();
-      draw(currentN, currentMode, false); // resize 時不收合選單
+      draw(currentN, currentMode, false); 
     });
 
     resizeSquare();
@@ -480,9 +473,6 @@
       }
     }
 
-    /**
-     * @param {boolean} shouldClose - 是否在繪製後收合手機選單
-     */
     function draw(N, mode, shouldClose = false) {
       currentN = N;
       currentMode = mode;
@@ -502,7 +492,6 @@
         info.textContent = `完成：n = ${N.toLocaleString()}，質數 ${cnt.toLocaleString()} 個。`;
         btnDraw.disabled = false;
         
-        // 只有明確要求時 (例如按下「重新繪製」)，才在手機版收合選單
         if(shouldClose && window.innerWidth <= 768) closeMenu();
       }, 10);
     }
@@ -511,7 +500,7 @@
       btn.addEventListener("click", () => {
         const n = parseInt(btn.dataset.n, 10);
         inputN.value = n;
-        draw(n, currentMode, false); // 快速選擇時「不」收合選單
+        // 移除了自動繪製
       });
     });
 
@@ -519,7 +508,7 @@
       r.addEventListener("change", () => {
         if (r.checked) {
           currentMode = r.value;
-          draw(currentN, currentMode, false); // 切換模式時「不」收合選單
+          // 移除了自動繪製
         }
       });
     });
@@ -528,7 +517,7 @@
       let N = parseInt(inputN.value, 10) || 100000;
       N = Math.max(100, Math.min(5000000, N));
       inputN.value = N;
-      draw(N, currentMode, true); // 只有點擊「重新繪製」才會收合選單
+      draw(N, currentMode, true); 
     });
 
     // 初始繪製
